@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum VendorType {
+  supplier
+  agency
+  logistics
+  IT
+  other
+}
+
+enum PiiAccessLevel {
+  none
+  limited
+  high
+}
+
+enum ScreeningGrade {
+  Low
+  Medium
+  High
+}
+
+enum Recommendation {
+  Go
+  ConditionalGo
+  NoGo
+}
+
+model Vendor {
+  id                         String   @id @default(cuid())
+  vendor_name                String
+  biz_reg_no                 String
+  vendor_type                VendorType
+  expected_annual_spend      Int?
+  advance_payment            Boolean  @default(false)
+  pii_access_level           PiiAccessLevel
+  public_procurement_related Boolean  @default(false)
+  notes                      String?
+  created_at                 DateTime @default(now())
+  updated_at                 DateTime @updatedAt
+
+  screenings ScreeningRun[]
+
+  @@index([biz_reg_no])
+}
+
+model ScreeningRun {
+  id                   String          @id @default(cuid())
+  vendor_id            String
+  run_at               DateTime        @default(now())
+  run_by               String
+  overall_grade        ScreeningGrade
+  recommendation       Recommendation
+  score_total          Int
+  score_breakdown_json Json
+  red_flags_json       Json
+  next_review_at       DateTime
+
+  vendor Vendor @relation(fields: [vendor_id], references: [id])
+
+  evidence_snapshots EvidenceSnapshot[]
+
+  @@index([vendor_id])
+}
+
+model EvidenceSnapshot {
+  id                 String   @id @default(cuid())
+  screening_run_id   String
+  provider_name      String
+  normalized_json    Json
+  raw_hash_sha256    String
+  checked_at         DateTime
+
+  screening_run ScreeningRun @relation(fields: [screening_run_id], references: [id])
+}
+
+model AuditLog {
+  id            String   @id @default(cuid())
+  actor         String
+  action        String
+  entity_type   String
+  entity_id     String
+  at            DateTime @default(now())
+  metadata_json Json
+}
