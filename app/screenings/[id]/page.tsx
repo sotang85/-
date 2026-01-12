@@ -111,6 +111,7 @@ export default async function ScreeningDetailPage({
           <TableHeader>
             <TableRow>
               <TableHead>Provider</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Checked at</TableHead>
               <TableHead>Normalized</TableHead>
             </TableRow>
@@ -119,6 +120,12 @@ export default async function ScreeningDetailPage({
             {screening.evidence_snapshots.map((snapshot) => (
               <TableRow key={snapshot.id}>
                 <TableCell>{snapshot.provider_name}</TableCell>
+                <TableCell>
+                  <div className="text-sm">{snapshot.status}</div>
+                  {snapshot.message ? (
+                    <div className="text-xs text-slate-500">{snapshot.message}</div>
+                  ) : null}
+                </TableCell>
                 <TableCell>{snapshot.checked_at.toISOString()}</TableCell>
                 <TableCell>
                   <pre className="rounded bg-slate-100 p-2 text-xs">

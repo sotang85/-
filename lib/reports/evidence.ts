@@ -29,6 +29,8 @@ export function buildEvidencePack(params: {
     },
     evidence_snapshots: snapshots.map((snapshot) => ({
       provider_name: snapshot.provider_name,
+      status: snapshot.status,
+      message: snapshot.message,
       normalized: snapshot.normalized_json,
       raw_hash_sha256: snapshot.raw_hash_sha256,
       checked_at: snapshot.checked_at

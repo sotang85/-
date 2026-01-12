@@ -38,8 +38,8 @@ async function resolveProviderResult<T>(params: {
       normalized: cache.normalized_json as T,
       raw_hash_sha256: cache.raw_hash_sha256,
       checked_at: cache.checked_at,
-      status: "ok",
-      message: "cache hit"
+      status: (cache.status as ProviderResult<T>["status"]) ?? "ok",
+      message: cache.message ?? "cache hit"
     };
   }
 
@@ -101,6 +101,8 @@ export async function runScreening(vendorId: string, actor: string) {
       {
         screening_run_id: run.id,
         provider_name: ntsResult.provider_name,
+        status: ntsResult.status,
+        message: ntsResult.message,
         normalized_json: ntsResult.normalized,
         raw_hash_sha256: ntsResult.raw_hash_sha256,
         checked_at: ntsResult.checked_at
@@ -108,6 +110,8 @@ export async function runScreening(vendorId: string, actor: string) {
       {
         screening_run_id: run.id,
         provider_name: openDartResult.provider_name,
+        status: openDartResult.status,
+        message: openDartResult.message,
         normalized_json: openDartResult.normalized,
         raw_hash_sha256: openDartResult.raw_hash_sha256,
         checked_at: openDartResult.checked_at
@@ -115,6 +119,8 @@ export async function runScreening(vendorId: string, actor: string) {
       {
         screening_run_id: run.id,
         provider_name: g2bResult.provider_name,
+        status: g2bResult.status,
+        message: g2bResult.message,
         normalized_json: g2bResult.normalized,
         raw_hash_sha256: g2bResult.raw_hash_sha256,
         checked_at: g2bResult.checked_at

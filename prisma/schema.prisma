@@ -74,6 +74,8 @@ model EvidenceSnapshot {
   id                 String   @id @default(cuid())
   screening_run_id   String
   provider_name      String
+  status             String
+  message            String?
   normalized_json    Json
   raw_hash_sha256    String
   checked_at         DateTime
