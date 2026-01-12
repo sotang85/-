@@ -5,24 +5,17 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { runScreeningAction } from "@/app/vendors/actions";
 
-function gradeLabel(grade?: string | null) {
-  if (grade === "High") return "높음";
-  if (grade === "Medium") return "중간";
-  if (grade === "Low") return "낮음";
-  return "미심사";
-}
-
 function gradeBadge(grade?: string | null) {
-  if (!grade) return <Badge variant="outline">미심사</Badge>;
-  if (grade === "High") return <Badge variant="danger">{gradeLabel(grade)}</Badge>;
-  if (grade === "Medium") return <Badge variant="warning">{gradeLabel(grade)}</Badge>;
-  return <Badge variant="success">{gradeLabel(grade)}</Badge>;
+  if (!grade) return <Badge variant="outline">Not screened</Badge>;
+  if (grade === "High") return <Badge variant="danger">High</Badge>;
+  if (grade === "Medium") return <Badge variant="warning">Medium</Badge>;
+  return <Badge variant="success">Low</Badge>;
 }
 
 function recommendationLabel(value?: string | null) {
-  if (!value) return "대기";
+  if (!value) return "Pending";
   if (value === "NoGo") return "No-Go";
-  if (value === "ConditionalGo") return "조건부 Go";
+  if (value === "ConditionalGo") return "Conditional Go";
   return value;
 }
 
@@ -41,24 +34,24 @@ export default async function VendorsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold">거래처 목록</h2>
-          <p className="text-sm text-slate-600">거래처 온보딩 및 심사 실행을 관리합니다.</p>
+          <h2 className="text-xl font-semibold">Vendors</h2>
+          <p className="text-sm text-slate-600">Manage vendor onboarding and screening runs.</p>
         </div>
         <Button asChild>
-          <Link href="/vendors/new">신규 거래처</Link>
+          <Link href="/vendors/new">New Vendor</Link>
         </Button>
       </div>
 
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>거래처</TableHead>
-            <TableHead>사업자등록번호</TableHead>
-            <TableHead>리스크 등급</TableHead>
-            <TableHead>최종 심사일</TableHead>
-            <TableHead>다음 심사일</TableHead>
-            <TableHead>권고 상태</TableHead>
-            <TableHead>작업</TableHead>
+            <TableHead>Vendor</TableHead>
+            <TableHead>BizRegNo</TableHead>
+            <TableHead>Risk Grade</TableHead>
+            <TableHead>Last Screened</TableHead>
+            <TableHead>Next Review</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -74,10 +67,10 @@ export default async function VendorsPage() {
                 <TableCell>{recommendationLabel(latest?.recommendation)}</TableCell>
                 <TableCell className="space-x-2">
                   <Button variant="outline" asChild>
-                    <Link href={`/vendors/${vendor.id}`}>상세</Link>
+                    <Link href={`/vendors/${vendor.id}`}>View</Link>
                   </Button>
                   <form action={async () => runScreeningAction(vendor.id)} className="inline">
-                    <Button type="submit">심사 실행</Button>
+                    <Button type="submit">Run screening</Button>
                   </form>
                 </TableCell>
               </TableRow>

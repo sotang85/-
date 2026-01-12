@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Vendor Risk Screening",
-  description: "거래처 온보딩 및 정기 심사 자동화"
+  description: "Vendor onboarding and periodic risk screening"
 };
 
 export default function RootLayout({
@@ -18,7 +18,7 @@ export default function RootLayout({
           <header className="mb-8">
             <h1 className="text-2xl font-semibold">Vendor Risk Screening</h1>
             <p className="text-sm text-slate-600">
-              한국 거래처 온보딩 및 정기 심사를 자동화합니다.
+              Automated screening for Korea vendor onboarding and periodic review.
             </p>
           </header>
           {children}
