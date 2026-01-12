@@ -31,6 +31,7 @@ pnpm dev
 
 * `DATA_GO_KR_API_KEY`: 국세청 사업자 상태 조회(data.go.kr). 키가 없으면 모의 데이터를 사용합니다.
 * `OPENDART_API_KEY`: OpenDART(상장사 공시) 조회용 선택 키입니다.
+* `G2B_API_KEY`: 나라장터 사용자정보 서비스 조회용 키입니다.
 
 ## 테스트
 
