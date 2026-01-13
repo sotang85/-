@@ -1,19 +1,21 @@
 import type { ScreeningInputs, RecommendationResult, RedFlag, ScoreBreakdown } from "@/lib/scoring/types";
 
 function scoreInherent(vendor: ScreeningInputs["vendor"]): number {
-  const typeScore = {
-    IT: 10,
-    agency: 8,
-    logistics: 6,
-    supplier: 5,
-    other: 6
-  }[vendor.vendor_type];
+  const typeScore =
+    {
+      IT: 10,
+      agency: 8,
+      logistics: 6,
+      supplier: 5,
+      other: 6
+    }[vendor.vendor_type] ?? 6;
 
-  const piiScore = {
-    none: 0,
-    limited: 8,
-    high: 15
-  }[vendor.pii_access_level];
+  const piiScore =
+    {
+      none: 0,
+      limited: 8,
+      high: 15
+    }[vendor.pii_access_level] ?? 0;
 
   const advancePaymentScore = vendor.advance_payment ? 8 : 0;
   const publicProcurementScore = vendor.public_procurement_related ? 6 : 0;

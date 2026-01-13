@@ -2,14 +2,21 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { runScoring } from "@/lib/scoring/scoring";
+import { safeJsonParse } from "@/lib/utils/json";
 import type { G2bNormalized, NtsNormalized, OpenDartNormalized } from "@/lib/providers/types";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 function recommendationLabel(value: string) {
   if (value === "NoGo") return "No-Go";
-  if (value === "ConditionalGo") return "Conditional Go";
+  if (value === "ConditionalGo") return "조건부 Go";
   return value;
+}
+
+function gradeLabel(value: string) {
+  if (value === "High") return "높음";
+  if (value === "Medium") return "중간";
+  return "낮음";
 }
 
 export default async function ScreeningDetailPage({
@@ -58,62 +65,67 @@ export default async function ScreeningDetailPage({
     openDart
   });
 
+  const scoreBreakdown = safeJsonParse(screening.score_breakdown_json, {});
+  const redFlags = safeJsonParse(screening.red_flags_json, []);
+  const parseSnapshot = (value: string) => safeJsonParse(value, {});
+  const parseMetadata = (value: string) => safeJsonParse(value, { raw: value });
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold">Screening Detail</h2>
+          <h2 className="text-xl font-semibold">심사 상세</h2>
           <p className="text-sm text-slate-600">{screening.vendor.vendor_name}</p>
         </div>
         <Button variant="outline" asChild>
-          <Link href={`/vendors/${screening.vendor_id}`}>Back to vendor</Link>
+          <Link href={`/vendors/${screening.vendor_id}`}>거래처로 이동</Link>
         </Button>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <div className="rounded-lg bg-white p-6 shadow">
-          <h3 className="text-lg font-semibold">Summary</h3>
+          <h3 className="text-lg font-semibold">요약</h3>
           <dl className="mt-4 space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt className="text-slate-500">Score total</dt>
+              <dt className="text-slate-500">총점</dt>
               <dd>{screening.score_total}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-slate-500">Grade</dt>
-              <dd>{screening.overall_grade}</dd>
+              <dt className="text-slate-500">등급</dt>
+              <dd>{gradeLabel(screening.overall_grade)}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-slate-500">Recommendation</dt>
+              <dt className="text-slate-500">권고</dt>
               <dd>{recommendationLabel(screening.recommendation)}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-slate-500">Run at</dt>
+              <dt className="text-slate-500">실행 시각</dt>
               <dd>{screening.run_at.toISOString()}</dd>
             </div>
           </dl>
         </div>
 
         <div className="rounded-lg bg-white p-6 shadow">
-          <h3 className="text-lg font-semibold">Scoring breakdown</h3>
+          <h3 className="text-lg font-semibold">점수 상세</h3>
           <pre className="mt-4 rounded bg-slate-100 p-3 text-xs text-slate-700">
-            {JSON.stringify(screening.score_breakdown_json, null, 2)}
+            {JSON.stringify(scoreBreakdown, null, 2)}
           </pre>
-          <h4 className="mt-4 font-semibold">Red flags</h4>
+          <h4 className="mt-4 font-semibold">레드 플래그</h4>
           <pre className="mt-2 rounded bg-slate-100 p-3 text-xs text-slate-700">
-            {JSON.stringify(screening.red_flags_json, null, 2)}
+            {JSON.stringify(redFlags, null, 2)}
           </pre>
         </div>
       </div>
 
       <div className="rounded-lg bg-white p-6 shadow">
-        <h3 className="text-lg font-semibold">Normalized findings</h3>
+        <h3 className="text-lg font-semibold">정규화된 결과</h3>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Provider</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Checked at</TableHead>
-              <TableHead>Normalized</TableHead>
+              <TableHead>상태</TableHead>
+              <TableHead>조회 시각</TableHead>
+              <TableHead>정규화 결과</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -129,7 +141,7 @@ export default async function ScreeningDetailPage({
                 <TableCell>{snapshot.checked_at.toISOString()}</TableCell>
                 <TableCell>
                   <pre className="rounded bg-slate-100 p-2 text-xs">
-                    {JSON.stringify(snapshot.normalized_json, null, 2)}
+                    {JSON.stringify(parseSnapshot(snapshot.normalized_json), null, 2)}
                   </pre>
                 </TableCell>
               </TableRow>
@@ -139,7 +151,7 @@ export default async function ScreeningDetailPage({
       </div>
 
       <div className="rounded-lg bg-white p-6 shadow">
-        <h3 className="text-lg font-semibold">Recommended controls/actions</h3>
+        <h3 className="text-lg font-semibold">권고 통제/조치</h3>
         <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-slate-700">
           {scoring.recommendedActions.map((action) => (
             <li key={action}>{action}</li>
@@ -148,14 +160,14 @@ export default async function ScreeningDetailPage({
       </div>
 
       <div className="rounded-lg bg-white p-6 shadow">
-        <h3 className="text-lg font-semibold">Audit trail</h3>
+        <h3 className="text-lg font-semibold">감사 로그</h3>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Actor</TableHead>
-              <TableHead>Action</TableHead>
-              <TableHead>Timestamp</TableHead>
-              <TableHead>Metadata</TableHead>
+              <TableHead>행위자</TableHead>
+              <TableHead>작업</TableHead>
+              <TableHead>시간</TableHead>
+              <TableHead>메타데이터</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -166,7 +178,7 @@ export default async function ScreeningDetailPage({
                 <TableCell>{log.at.toISOString()}</TableCell>
                 <TableCell>
                   <pre className="rounded bg-slate-100 p-2 text-xs">
-                    {JSON.stringify(log.metadata_json, null, 2)}
+                    {JSON.stringify(parseMetadata(log.metadata_json), null, 2)}
                   </pre>
                 </TableCell>
               </TableRow>

@@ -1,4 +1,5 @@
 import type { EvidenceSnapshot, ScreeningRun, Vendor } from "@prisma/client";
+import { safeJsonParse } from "@/lib/utils/json";
 
 export function buildEvidencePack(params: {
   vendor: Vendor;
@@ -23,15 +24,15 @@ export function buildEvidencePack(params: {
       overall_grade: screening.overall_grade,
       recommendation: screening.recommendation,
       score_total: screening.score_total,
-      score_breakdown: screening.score_breakdown_json,
-      red_flags: screening.red_flags_json,
+      score_breakdown: safeJsonParse(screening.score_breakdown_json, {}),
+      red_flags: safeJsonParse(screening.red_flags_json, [] as unknown[]),
       next_review_at: screening.next_review_at
     },
     evidence_snapshots: snapshots.map((snapshot) => ({
       provider_name: snapshot.provider_name,
       status: snapshot.status,
       message: snapshot.message,
-      normalized: snapshot.normalized_json,
+      normalized: safeJsonParse(snapshot.normalized_json, {}),
       raw_hash_sha256: snapshot.raw_hash_sha256,
       checked_at: snapshot.checked_at
     })),

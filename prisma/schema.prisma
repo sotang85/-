@@ -7,40 +7,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum VendorType {
-  supplier
-  agency
-  logistics
-  IT
-  other
-}
-
-enum PiiAccessLevel {
-  none
-  limited
-  high
-}
-
-enum ScreeningGrade {
-  Low
-  Medium
-  High
-}
-
-enum Recommendation {
-  Go
-  ConditionalGo
-  NoGo
-}
-
 model Vendor {
   id                         String   @id @default(cuid())
   vendor_name                String
   biz_reg_no                 String
-  vendor_type                VendorType
+  vendor_type                String
   expected_annual_spend      Int?
   advance_payment            Boolean  @default(false)
-  pii_access_level           PiiAccessLevel
+  pii_access_level           String
   public_procurement_related Boolean  @default(false)
   notes                      String?
   created_at                 DateTime @default(now())
@@ -56,11 +30,11 @@ model ScreeningRun {
   vendor_id            String
   run_at               DateTime        @default(now())
   run_by               String
-  overall_grade        ScreeningGrade
-  recommendation       Recommendation
+  overall_grade        String
+  recommendation       String
   score_total          Int
-  score_breakdown_json Json
-  red_flags_json       Json
+  score_breakdown_json String
+  red_flags_json       String
   next_review_at       DateTime
 
   vendor Vendor @relation(fields: [vendor_id], references: [id])
@@ -76,7 +50,7 @@ model EvidenceSnapshot {
   provider_name      String
   status             String
   message            String?
-  normalized_json    Json
+  normalized_json    String
   raw_hash_sha256    String
   checked_at         DateTime
 
@@ -90,5 +64,5 @@ model AuditLog {
   entity_type   String
   entity_id     String
   at            DateTime @default(now())
-  metadata_json Json
+  metadata_json String
 }

@@ -3,6 +3,7 @@ import { fetchNtsStatus } from "@/lib/providers/nts";
 import { fetchOpenDart } from "@/lib/providers/opendart";
 import { fetchG2bSanctions } from "@/lib/providers/g2b";
 import { runScoring } from "@/lib/scoring/scoring";
+import { safeJsonParse, safeJsonStringify } from "@/lib/utils/json";
 import type { ProviderResult } from "@/lib/providers/types";
 
 const CACHE_WINDOW_MS = 24 * 60 * 60 * 1000;
@@ -35,7 +36,7 @@ async function resolveProviderResult<T>(params: {
   if (cache) {
     return {
       provider_name: params.providerName as ProviderResult<T>["provider_name"],
-      normalized: cache.normalized_json as T,
+      normalized: safeJsonParse(cache.normalized_json, {} as T),
       raw_hash_sha256: cache.raw_hash_sha256,
       checked_at: cache.checked_at,
       status: (cache.status as ProviderResult<T>["status"]) ?? "ok",
@@ -90,8 +91,8 @@ export async function runScreening(vendorId: string, actor: string) {
             ? "NoGo"
             : "ConditionalGo",
       score_total: scoring.scoreTotal,
-      score_breakdown_json: scoring.breakdown,
-      red_flags_json: scoring.redFlags,
+      score_breakdown_json: safeJsonStringify(scoring.breakdown),
+      red_flags_json: safeJsonStringify(scoring.redFlags),
       next_review_at: nextReviewAt
     }
   });
@@ -103,7 +104,7 @@ export async function runScreening(vendorId: string, actor: string) {
         provider_name: ntsResult.provider_name,
         status: ntsResult.status,
         message: ntsResult.message,
-        normalized_json: ntsResult.normalized,
+        normalized_json: safeJsonStringify(ntsResult.normalized),
         raw_hash_sha256: ntsResult.raw_hash_sha256,
         checked_at: ntsResult.checked_at
       },
@@ -112,7 +113,7 @@ export async function runScreening(vendorId: string, actor: string) {
         provider_name: openDartResult.provider_name,
         status: openDartResult.status,
         message: openDartResult.message,
-        normalized_json: openDartResult.normalized,
+        normalized_json: safeJsonStringify(openDartResult.normalized),
         raw_hash_sha256: openDartResult.raw_hash_sha256,
         checked_at: openDartResult.checked_at
       },
@@ -121,7 +122,7 @@ export async function runScreening(vendorId: string, actor: string) {
         provider_name: g2bResult.provider_name,
         status: g2bResult.status,
         message: g2bResult.message,
-        normalized_json: g2bResult.normalized,
+        normalized_json: safeJsonStringify(g2bResult.normalized),
         raw_hash_sha256: g2bResult.raw_hash_sha256,
         checked_at: g2bResult.checked_at
       }
@@ -134,10 +135,10 @@ export async function runScreening(vendorId: string, actor: string) {
       action: "screening_run",
       entity_type: "ScreeningRun",
       entity_id: run.id,
-      metadata_json: {
+      metadata_json: safeJsonStringify({
         vendor_id: vendor.id,
         vendor_name: vendor.vendor_name
-      }
+      })
     }
   });
 
