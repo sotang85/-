@@ -76,7 +76,8 @@ export default async function VendorsPage() {
                   <Button variant="outline" asChild>
                     <Link href={`/vendors/${vendor.id}`}>상세</Link>
                   </Button>
-                  <form action={async () => runScreeningAction(vendor.id)} className="inline">
+                  <form action={runScreeningAction} className="inline">
+                    <input type="hidden" name="vendorId" value={vendor.id} />
                     <Button type="submit">심사 실행</Button>
                   </form>
                 </TableCell>

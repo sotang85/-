@@ -47,7 +47,8 @@ export default async function VendorDetailPage({
           <Button variant="outline" asChild>
             <Link href="/vendors">뒤로</Link>
           </Button>
-          <form action={async () => runScreeningAction(vendor.id)}>
+          <form action={runScreeningAction}>
+            <input type="hidden" name="vendorId" value={vendor.id} />
             <Button type="submit">심사 실행</Button>
           </form>
         </div>
